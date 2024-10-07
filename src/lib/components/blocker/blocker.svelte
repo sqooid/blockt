@@ -1,9 +1,7 @@
 <script lang="ts">
-	import type { ComponentProps } from 'svelte';
-	import BlockerAddTask from './blocker-add-task.svelte';
 	import BlocktCell from './blockt-cell.svelte';
 	import BlocktRenderBlock from './blockt-render-block.svelte';
-	import { createBlocktDay, hourToReadable, type BlocktDay } from './types.svelte';
+	import { hourToReadable, type BlocktDay } from './types.svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -17,46 +15,58 @@
 			.map((i) => day.startHour + i * day.blockSizeHours)
 	]);
 
-	let gridWrapper: HTMLDivElement;
-	let gridCells: Element[] = $state([]);
-	let blocktWrapper: HTMLDivElement;
-	let leftOffset = $state(0);
-	let rightOffset = 0;
-	const cellPadding = 2;
-	const updateGridCells = () => {
-		if (!gridWrapper) return;
-		gridCells = [];
-		gridWrapper.querySelectorAll('.blockt-cell').forEach((cell) => {
-			gridCells.push(cell);
+	let gridWrapper: HTMLDivElement | null = $state(null);
+
+	type GridCellInfo = {
+		leftOffset: number;
+		cellHeight: number;
+		cells: { top: number }[];
+	};
+	const getGridCellInfo = () => {
+		if (!gridWrapper) return null;
+		const gridInfo: GridCellInfo = { leftOffset: 0, cellHeight: 0, cells: [] };
+		gridWrapper.querySelectorAll('.blockt-cell').forEach((cell, i) => {
+			const c = cell as HTMLElement;
+			if (i === 0) {
+				gridInfo.leftOffset = c.offsetLeft;
+				gridInfo.cellHeight = c.offsetHeight;
+			}
+			const cellItem = {
+				top: c.offsetTop
+			};
+			gridInfo.cells.push(cellItem);
 		});
-		const elem = gridCells[0] as HTMLElement;
-		leftOffset = elem.offsetLeft;
+		return gridInfo;
 	};
 
+	const cellPadding = 2;
 	const renderBlocks = $derived.by(() => {
-		updateGridCells();
-		if (gridCells.length === 0) return [];
+		const gridInfo = getGridCellInfo();
+		if (!gridInfo) return [];
 		const day = blocktDay.day;
 		const blocks = blocktDay.day.blocks;
 		return blocks.map((block) => {
-			const exampleCell = gridCells[0] as HTMLElement;
 			const startIndex = (block.start - day.startHour) / day.blockSizeHours;
 			const endIndex = (block.end - day.startHour) / day.blockSizeHours;
-			const topOffset = (gridCells[startIndex] as HTMLElement).offsetTop + cellPadding;
-			const height = (endIndex - startIndex) * exampleCell.offsetHeight - 2 * cellPadding;
+			const topOffset = gridInfo.cells[startIndex].top + cellPadding;
+			const height = (endIndex - startIndex) * gridInfo.cellHeight - 2 * cellPadding;
 
 			return {
 				top: topOffset,
-				left: leftOffset + cellPadding,
-				right: rightOffset + cellPadding,
+				left: gridInfo.leftOffset + cellPadding,
+				right: cellPadding,
 				height: height,
 				timeBlock: block
 			};
 		});
 	});
+
+	$effect(() => {
+		console.log($state.snapshot(blocktDay.day.blocks));
+	});
 </script>
 
-<div class="relative mx-auto max-w-prose" bind:this={blocktWrapper}>
+<div class="relative mx-auto max-w-prose">
 	{#each renderBlocks as block (block.timeBlock.id)}
 		<BlocktRenderBlock {...block} />
 	{/each}

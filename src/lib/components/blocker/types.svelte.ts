@@ -38,6 +38,10 @@ export class BlocktDay {
 		this.#day = dayBlock;
 	}
 
+	test() {
+		this.#day = defaultDayBlock;
+	}
+
 	get day() {
 		return this.#day;
 	}
