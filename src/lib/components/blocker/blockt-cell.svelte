@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Button } from '../ui/button';
 	import BlockerAddTask from './blocker-add-task.svelte';
 	import type { BlocktDay } from './types.svelte';
 
@@ -8,19 +9,17 @@
 		blocktDay: BlocktDay;
 	};
 	let { hour, index, blocktDay }: Props = $props();
-
-	const onCell = (e: MouseEvent) => {
-		showAddTask = true;
-	};
-	let showAddTask = $state(false);
 </script>
 
 <div class="blockt-cell relative h-full w-full">
-	<button
-		class="h-full w-full cursor-pointer"
-		title="Add task"
-		onclick={onCell}
-		aria-label="Add task"
-	></button>
-	<BlockerAddTask bind:show={showAddTask} {blocktDay} {hour} />
+	<BlockerAddTask {blocktDay} {hour}>
+		{#snippet trigger(builder: any)}
+			<Button
+				class="h-full w-full cursor-pointer"
+				title="Add task"
+				variant="ghost"
+				builders={[builder]}
+			></Button>
+		{/snippet}
+	</BlockerAddTask>
 </div>

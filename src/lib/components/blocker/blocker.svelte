@@ -33,7 +33,7 @@
 		leftOffset = elem.offsetLeft;
 	};
 
-	let renderBlocks = $derived.by(() => {
+	const renderBlocks = $derived.by(() => {
 		updateGridCells();
 		if (gridCells.length === 0) return [];
 		const day = blocktDay.day;

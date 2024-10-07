@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Blocker from '$lib/components/blocker/blocker.svelte';
-	import { createBlocktDay, type DayBlock } from '$lib/components/blocker/types.svelte';
+	import { BlocktDay, type DayBlock } from '$lib/components/blocker/types.svelte';
 	import moment from 'moment';
 
 	const emptyDayBlock: DayBlock = {
@@ -10,7 +10,7 @@
 		endHour: 22,
 		blockSizeHours: 0.5
 	};
-	const blocktDay = createBlocktDay(emptyDayBlock);
+	const blocktDay = new BlocktDay(emptyDayBlock);
 </script>
 
 <div class="w-full p-8">
