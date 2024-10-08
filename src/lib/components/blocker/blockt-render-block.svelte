@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
-	import { BlocktDay, getGridCellInfo, type GridInfo, type TimeBlock } from './types.svelte';
+	import {
+		BlocktDay,
+		getGridCellInfo,
+		pageState,
+		type GridInfo,
+		type TimeBlock
+	} from './types.svelte';
 	import { backInOut, quartInOut } from 'svelte/easing';
 
 	type Props = {
@@ -25,16 +31,22 @@
 		addListeners();
 	};
 	const addListeners = () => {
+		pageState.dragging = true;
 		document.addEventListener('mousemove', onMouseMove);
 		document.addEventListener('touchmove', onMouseMove, { passive: false });
 		document.addEventListener('mouseup', onMouseUp);
 		document.addEventListener('touchend', onMouseUp);
+		document.body.style.overscrollBehavior = 'none';
+		document.body.style.overflow = 'hidden';
 	};
 	const removeListeners = () => {
+		pageState.dragging = false;
 		document.removeEventListener('mousemove', onMouseMove);
 		document.removeEventListener('touchmove', onMouseMove);
 		document.removeEventListener('mouseup', onMouseUp);
 		document.removeEventListener('touchend', onMouseUp);
+		document.body.style.overscrollBehavior = 'auto';
+		document.body.style.overflow = 'auto';
 		extendSide = null;
 	};
 	const onMouseMove = (e: MouseEvent | TouchEvent) => {
@@ -75,7 +87,7 @@
 
 {#snippet handle(side: 'top' | 'bottom')}
 	<button
-		class={`absolute left-0 right-0 h-2 w-full cursor-ns-resize rounded-full hover:bg-black hover:bg-opacity-10 ${side}-0 ${extendSide === side ? 'bg-black bg-opacity-10' : ''}`}
+		class={`absolute left-0 right-0 h-2 w-full cursor-ns-resize rounded-full ${pageState.dragging ? '' : 'hover:bg-black hover:bg-opacity-10'} ${side}-0 ${extendSide === side ? 'bg-black bg-opacity-10' : ''}`}
 		aria-label="Resize"
 		onmousedown={onMouseDown}
 		ontouchstart={onMouseDown}
@@ -84,7 +96,7 @@
 {/snippet}
 
 <div
-	class="absolute z-10 cursor-pointer rounded-sm bg-black bg-opacity-10"
+	class="absolute z-10 cursor-pointer rounded-sm bg-black bg-opacity-10 transition-all duration-100"
 	id={timeBlock.id}
 	style:top={top + 'px'}
 	style:left={left + 'px'}

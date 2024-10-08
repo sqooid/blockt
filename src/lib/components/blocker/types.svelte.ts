@@ -119,3 +119,8 @@ export const getGridCellInfo = (wrapper: HTMLElement | null) => {
 	});
 	return gridInfo;
 };
+
+class PageState {
+	dragging = $state(false);
+}
+export const pageState = new PageState();
