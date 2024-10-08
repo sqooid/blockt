@@ -96,7 +96,8 @@
 {/snippet}
 
 <div
-	class="absolute z-10 cursor-pointer rounded-sm bg-black bg-opacity-10 transition-all duration-100"
+	class="absolute z-10 cursor-pointer rounded-sm transition-all duration-[75ms]"
+	style:background={timeBlock.color}
 	id={timeBlock.id}
 	style:top={top + 'px'}
 	style:left={left + 'px'}

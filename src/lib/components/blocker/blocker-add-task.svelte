@@ -5,7 +5,8 @@
 	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
 	import { Label } from '../ui/label';
-	import type { BlocktDay, TimeBlock } from './types.svelte';
+	import { blockColours, randomChoice, type BlocktDay, type TimeBlock } from './types.svelte';
+	import ColorPicker from './color-picker.svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -15,6 +16,7 @@
 	let { blocktDay, hour, trigger }: Props = $props();
 
 	let task = $state('');
+	let color = $state(randomChoice(blockColours));
 	const onSave = () => {
 		if (task) {
 			const newBlock: TimeBlock = {
@@ -22,7 +24,7 @@
 				start: hour,
 				end: hour + blocktDay.day.blockSizeHours,
 				task: task,
-				color: ''
+				color: color
 			};
 			const res = blocktDay.addBlock(newBlock);
 			if (!res) toast.error('Task overlaps with existing task');
@@ -39,7 +41,7 @@
 
 <Popover.Root bind:open>
 	<Popover.Trigger asChild let:builder>
-		{@render trigger(builder)}
+		{@render trigger(builder, open)}
 	</Popover.Trigger>
 	<Popover.Content side="top" sideOffset={2}>
 		<div class="flex flex-col gap-2">
@@ -47,6 +49,7 @@
 				<span>Task</span>
 				<Input type="text" placeholder="e.g. Walk" bind:value={task} class="mt-1" />
 			</Label>
+			<ColorPicker bind:value={color} />
 			<div class="flex gap-2">
 				<Button variant="outline" class="w-fit" onclick={onCancel}>Cancel</Button>
 				<Button class="w-fit" onclick={onSave}>Add</Button>

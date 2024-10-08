@@ -54,7 +54,14 @@ export class BlocktDay {
 		const day = this.#day;
 		if (block.start < day.startHour || block.end > day.endHour) return false;
 		if (block.start >= block.end) return false;
-		const insertIndex = this.blocks.findIndex((b) => b.end <= block.start);
+		let insertIndex = -1;
+		for (let i = 0; i < this.blocks.length; i++) {
+			if (this.blocks[i].end <= block.start) {
+				insertIndex = i;
+			}
+		}
+		console.log(insertIndex);
+
 		const nextBlock = this.blocks[insertIndex + 1];
 		if (nextBlock && block.end > nextBlock.start) return false;
 		this.blocks.splice(insertIndex + 1, 0, block);
@@ -124,3 +131,7 @@ class PageState {
 	dragging = $state(false);
 }
 export const pageState = new PageState();
+
+export const blockColours = ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'];
+
+export const randomChoice = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
