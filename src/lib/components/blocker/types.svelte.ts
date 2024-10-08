@@ -50,78 +50,72 @@ export class BlocktDay {
 		return this.#day.blocks;
 	}
 
-	getInsertIndex(newBlock: TimeBlock) {
-		const day = this.#day;
-		if (day.blocks.length == 0) return 0;
-		if (newBlock.end <= day.blocks[0].start && newBlock.start >= day.startHour) return 0;
-		for (let i = 0; i < day.blocks.length - 1; i++) {
-			const block = day.blocks[i];
-			const nextBlock = day.blocks[i + 1];
-			if (newBlock.start >= block.end && newBlock.end <= nextBlock.start) {
-				return i;
-			}
-		}
-		if (newBlock.start >= day.blocks[day.blocks.length - 1].end && newBlock.end <= day.endHour)
-			return day.blocks.length;
-		return -1;
-	}
-
 	addBlock(block: TimeBlock) {
 		const day = this.#day;
 		if (block.start < day.startHour || block.end > day.endHour) return false;
 		if (block.start >= block.end) return false;
-		const insertIndex = this.getInsertIndex(block);
-		if (insertIndex != -1) {
-			this.blocks.splice(insertIndex, 0, block);
-			return true;
-		}
-		return false;
+		const insertIndex = this.blocks.findIndex((b) => b.end <= block.start);
+		const nextBlock = this.blocks[insertIndex + 1];
+		if (nextBlock && block.end > nextBlock.start) return false;
+		this.blocks.splice(insertIndex + 1, 0, block);
+		return true;
+	}
+
+	moveBlockEnd(blockId: string, newEnd: number) {
+		const blockIdx = this.blocks.findIndex((b) => b.id == blockId);
+		if (blockIdx < 0) return false;
+		const block = this.blocks[blockIdx];
+		if (newEnd <= block.start) return false;
+		// find extension limit
+		const nextBlock = this.blocks[blockIdx + 1];
+		const limit = nextBlock ? nextBlock.start : this.#day.endHour;
+		console.log(limit);
+
+		const newEndHour = Math.min(newEnd, limit);
+		block.end = newEndHour;
+		return true;
+	}
+
+	moveBlockStart(blockId: string, newStart: number) {
+		const blockIdx = this.blocks.findIndex((b) => b.id == blockId);
+		if (blockIdx < 0) return false;
+		const block = this.blocks[blockIdx];
+		if (newStart >= block.end) return false;
+		// find extension limit
+		const prevBlock = this.blocks[blockIdx - 1];
+		const limit = prevBlock ? prevBlock.end : this.#day.startHour;
+		const newStartHour = Math.max(newStart, limit);
+		block.start = newStartHour;
+		return true;
 	}
 }
 
-export const createBlocktDay = (block: DayBlock) => {
-	let day = $state(block);
-	const setData = (data: DayBlock) => {
-		day = data;
-	};
-	const getInsertIndex = (newBlock: TimeBlock) => {
-		if (day.blocks.length == 0) return 0;
-		if (newBlock.end <= day.blocks[0].start && newBlock.start >= day.startHour) return 0;
-		for (let i = 0; i < day.blocks.length - 1; i++) {
-			const block = day.blocks[i];
-			const nextBlock = day.blocks[i + 1];
-			if (newBlock.start >= block.end && newBlock.end <= nextBlock.start) {
-				return i;
-			}
-		}
-		if (newBlock.start >= day.blocks[day.blocks.length - 1].end && newBlock.end <= day.endHour)
-			return day.blocks.length;
-		return -1;
-	};
-	const addBlock = (block: TimeBlock) => {
-		if (block.start < day.startHour || block.end > day.endHour) return false;
-		if (block.start >= block.end) return false;
-		const insertIndex = getInsertIndex(block);
-		if (insertIndex != -1) {
-			day.blocks.splice(insertIndex, 0, block);
-
-			return true;
-		}
-		return false;
-	};
-	return {
-		get day() {
-			return day;
-		},
-		setData,
-		addBlock
-	};
+type GridCellInfo = {
+	top: number;
+	pageTop: number;
+	pageBottom: number;
 };
-
-export const currentBlocktDay = createBlocktDay({
-	startHour: 7,
-	endHour: 22,
-	blockSizeHours: 1,
-	date: new Date(),
-	blocks: []
-});
+export type GridInfo = {
+	leftOffset: number;
+	cellHeight: number;
+	cells: GridCellInfo[];
+};
+export const getGridCellInfo = (wrapper: HTMLElement | null) => {
+	if (!wrapper) return null;
+	const gridInfo: GridInfo = { leftOffset: 0, cellHeight: 0, cells: [] };
+	wrapper.querySelectorAll('.blockt-cell').forEach((cell, i) => {
+		const c = cell as HTMLElement;
+		if (i === 0) {
+			gridInfo.leftOffset = c.offsetLeft;
+			gridInfo.cellHeight = c.offsetHeight;
+		}
+		const bbox = c.getBoundingClientRect();
+		const cellItem: GridCellInfo = {
+			top: c.offsetTop,
+			pageTop: bbox.top + window.scrollY,
+			pageBottom: bbox.bottom + window.scrollY
+		};
+		gridInfo.cells.push(cellItem);
+	});
+	return gridInfo;
+};

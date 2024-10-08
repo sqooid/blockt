@@ -1,7 +1,7 @@
 <script lang="ts">
 	import BlocktCell from './blockt-cell.svelte';
 	import BlocktRenderBlock from './blockt-render-block.svelte';
-	import { hourToReadable, type BlocktDay } from './types.svelte';
+	import { getGridCellInfo, hourToReadable, type BlocktDay } from './types.svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -15,33 +15,11 @@
 			.map((i) => day.startHour + i * day.blockSizeHours)
 	]);
 
-	let gridWrapper: HTMLDivElement | null = $state(null);
-
-	type GridCellInfo = {
-		leftOffset: number;
-		cellHeight: number;
-		cells: { top: number }[];
-	};
-	const getGridCellInfo = () => {
-		if (!gridWrapper) return null;
-		const gridInfo: GridCellInfo = { leftOffset: 0, cellHeight: 0, cells: [] };
-		gridWrapper.querySelectorAll('.blockt-cell').forEach((cell, i) => {
-			const c = cell as HTMLElement;
-			if (i === 0) {
-				gridInfo.leftOffset = c.offsetLeft;
-				gridInfo.cellHeight = c.offsetHeight;
-			}
-			const cellItem = {
-				top: c.offsetTop
-			};
-			gridInfo.cells.push(cellItem);
-		});
-		return gridInfo;
-	};
+	let gridWrapper: HTMLElement | null = $state(null);
 
 	const cellPadding = 2;
 	const renderBlocks = $derived.by(() => {
-		const gridInfo = getGridCellInfo();
+		const gridInfo = getGridCellInfo(gridWrapper);
 		if (!gridInfo) return [];
 		const day = blocktDay.day;
 		const blocks = blocktDay.day.blocks;
@@ -60,16 +38,14 @@
 			};
 		});
 	});
-
-	$effect(() => {
-		console.log($state.snapshot(blocktDay.day.blocks));
-	});
 </script>
 
 <div class="relative mx-auto max-w-prose">
-	{#each renderBlocks as block (block.timeBlock.id)}
-		<BlocktRenderBlock {...block} />
-	{/each}
+	{#if gridWrapper}
+		{#each renderBlocks as block (block.timeBlock.id)}
+			<BlocktRenderBlock {...block} {gridWrapper} {blocktDay} />
+		{/each}
+	{/if}
 	<div
 		class={`grid grid-rows-${blockHours.length} w-full grid-cols-[auto_1fr] gap-x-2`}
 		bind:this={gridWrapper}
