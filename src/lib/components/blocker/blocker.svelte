@@ -32,7 +32,7 @@
 			return {
 				top: topOffset,
 				left: gridInfo.leftOffset + cellPadding,
-				right: cellPadding,
+				width: gridInfo.cellWidth - 2 * cellPadding,
 				height: height,
 				timeBlock: block
 			};

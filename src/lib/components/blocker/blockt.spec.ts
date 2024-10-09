@@ -405,11 +405,78 @@ test('blockt move large displace small', () => {
 	day.snapshotBlocks();
 
 	day.moveBlock('1', 10);
-	console.log(day.blocks);
 	expect(day.blocks).toMatchObject([
 		{ id: '2', start: 9, end: 9.5 },
 		{ id: '3', start: 9.5, end: 10 },
 		{ id: '1', start: 10, end: 13 },
 		{ id: '4', start: 13, end: 14 }
+	]);
+});
+
+test('blockt weird small displacement', () => {
+	const dayBlock: DayBlock = {
+		startHour: 7,
+		endHour: 22,
+		blockSizeHours: 0.5,
+		blocks: [],
+		date: new Date()
+	};
+	const day = BlocktDay.fromDayBlock(dayBlock);
+	day.day.blocks = [
+		{
+			id: '1',
+			start: 10,
+			end: 10.5,
+			task: 'asdasda',
+			color: '#ffffba'
+		},
+		{
+			id: '2',
+			start: 12,
+			end: 15,
+			task: 'asdsd',
+			color: '#baffc9'
+		},
+		{
+			id: '3',
+			start: 15,
+			end: 15.5,
+			task: 'asd',
+			color: '#baffc9'
+		}
+	];
+
+	day.snapshotBlocks();
+
+	day.moveBlock('3', 14.5);
+	expect(day.blocks).toMatchObject([
+		{ id: '1', start: 10, end: 10.5 },
+		{ id: '2', start: 11.5, end: 14.5 },
+		{ id: '3', start: 14.5, end: 15 }
+	]);
+});
+
+test('blockt weird small displacement 2', () => {
+	const dayBlock: DayBlock = {
+		startHour: 7,
+		endHour: 22,
+		blockSizeHours: 0.5,
+		blocks: [],
+		date: new Date()
+	};
+	const day = BlocktDay.fromDayBlock(dayBlock);
+	day.day.blocks = [
+		{ id: '0', start: 10, end: 10.5, color: '', task: '' },
+		{ id: '1', start: 11.5, end: 12.5, color: '', task: '' },
+		{ id: '2', start: 12.5, end: 13, color: '', task: '' }
+	];
+
+	day.snapshotBlocks();
+
+	day.moveBlock('2', 12);
+	expect(day.blocks).toMatchObject([
+		{ id: '0', start: 10, end: 10.5, color: '', task: '' },
+		{ id: '1', start: 11, end: 12, color: '', task: '' },
+		{ id: '2', start: 12, end: 12.5, color: '', task: '' }
 	]);
 });

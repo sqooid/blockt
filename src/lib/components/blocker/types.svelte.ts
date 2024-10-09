@@ -192,6 +192,7 @@ export class BlocktDay {
 				bestDepth = depth;
 				bestBlocks = proposedBlocks;
 			}
+			console.log(i, 'cost', cost, 'depth', depth);
 		}
 		this.#day.blocks = bestBlocks;
 		this.addBlock(newBlock);
@@ -211,12 +212,28 @@ export class BlocktDay {
 			return { cost: NaN, depth };
 		const nextIdx = shift > 0 ? blockIdx + 1 : blockIdx - 1;
 		const nextBlock = blocks[nextIdx];
-		if (!nextBlock) return { cost: Math.abs(shift), depth: depth + 1 };
+		const shiftNeeded = nextBlock
+			? shift > 0
+				? nextBlock.start < block.end
+				: nextBlock.end > block.start
+			: false;
+		if (!shiftNeeded) return { cost: Math.abs(shift), depth: depth + 1 };
 		const nextShift = shift < 0 ? block.start - nextBlock.end : block.end - nextBlock.start;
 		const nextResult = this.shiftBlock(blocks, nextIdx, nextShift, depth + 1);
 		return { cost: Math.abs(shift) + nextResult.cost, depth: nextResult.depth };
 	}
 }
+
+export const printBlocksTestFormat = (blocks: TimeBlock[]) => {
+	const b = blocks.map((b, i) => ({
+		id: i.toString(),
+		start: b.start,
+		end: b.end,
+		color: '',
+		task: ''
+	}));
+	console.log(JSON.stringify(b));
+};
 
 type GridCellInfo = {
 	top: number;
@@ -226,16 +243,28 @@ type GridCellInfo = {
 export type GridInfo = {
 	leftOffset: number;
 	cellHeight: number;
+	cellWidth: number;
+	gridTop: number;
+	gridLeft: number;
 	cells: GridCellInfo[];
 };
 export const getGridCellInfo = (wrapper: HTMLElement | null) => {
 	if (!wrapper) return null;
-	const gridInfo: GridInfo = { leftOffset: 0, cellHeight: 0, cells: [] };
+	const wrapperBbox = wrapper.getBoundingClientRect();
+	const gridInfo: GridInfo = {
+		leftOffset: 0,
+		cellHeight: 0,
+		cellWidth: 0,
+		gridLeft: wrapperBbox.left + window.scrollX,
+		gridTop: wrapperBbox.top + window.scrollY,
+		cells: []
+	};
 	wrapper.querySelectorAll('.blockt-cell').forEach((cell, i) => {
 		const c = cell as HTMLElement;
 		if (i === 0) {
 			gridInfo.leftOffset = c.offsetLeft;
 			gridInfo.cellHeight = c.offsetHeight;
+			gridInfo.cellWidth = c.offsetWidth;
 		}
 		const bbox = c.getBoundingClientRect();
 		const cellItem: GridCellInfo = {
@@ -249,7 +278,8 @@ export const getGridCellInfo = (wrapper: HTMLElement | null) => {
 };
 
 class PageState {
-	dragging = $state(false);
+	draggingEdge = $state(false);
+	draggingBlock = $state('');
 }
 export const pageState = new PageState();
 
