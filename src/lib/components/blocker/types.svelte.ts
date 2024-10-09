@@ -87,7 +87,6 @@ export class BlocktDay {
 		// find extension limit
 		const nextBlock = this.blocks[blockIdx + 1];
 		const limit = nextBlock ? nextBlock.start : this.#day.endHour;
-		console.log(limit);
 
 		const newEndHour = Math.min(newEnd, limit);
 		block.end = newEndHour;
@@ -154,6 +153,11 @@ export class BlocktDay {
 		const blockIdx = blocks.findIndex((b) => b.id == blockId);
 		// proposed position
 		const block = blocks.splice(blockIdx, 1)[0];
+		// clamp start within bounds
+		newStart = Math.max(
+			this.#day.startHour,
+			Math.min(this.#day.endHour - (block.end - block.start), newStart)
+		);
 		const newBlock = { ...block, start: newStart, end: block.end + newStart - block.start };
 
 		// get overlaps
@@ -192,7 +196,6 @@ export class BlocktDay {
 				bestDepth = depth;
 				bestBlocks = proposedBlocks;
 			}
-			console.log(i, 'cost', cost, 'depth', depth);
 		}
 		this.#day.blocks = bestBlocks;
 		this.addBlock(newBlock);

@@ -68,14 +68,17 @@
 		let cellPosition = 0;
 		for (let i = 0; i < cells.length; i++) {
 			if (y > cells[i].pageTop) {
+				cellPosition = i;
 				continue;
 			}
-			cellPosition = i;
 			break;
 		}
-		let newHour = blocktDay.day.startHour + cellPosition * blocktDay.day.blockSizeHours;
-		if (extendSide === 'top') newHour -= blocktDay.day.blockSizeHours;
+		console.log(cellPosition);
+
+		const blockSize = blocktDay.day.blockSizeHours;
+		let newHour = blocktDay.day.startHour + cellPosition * blockSize;
 		if (extendSide === 'bottom') {
+			newHour += blockSize;
 			if (newHour !== timeBlock.end) {
 				blocktDay.moveBlockEnd(timeBlock.id, newHour);
 			}
@@ -129,7 +132,6 @@
 		if (newStart !== timeBlock.start) {
 			blocktDay.moveBlock(timeBlock.id, newStart);
 		}
-		printBlocksTestFormat(blocktDay.day.blocks);
 	};
 	const onMoveStop = (e: MouseEvent | TouchEvent) => {
 		pageState.draggingBlock = '';
@@ -160,7 +162,7 @@
 {/snippet}
 
 <button
-	class={`absolute z-10 cursor-pointer rounded-sm ${pageState.draggingBlock === timeBlock.id ? 'z-20' : 'transition-all duration-75'}`}
+	class={`absolute z-10 cursor-pointer rounded-sm ${pageState.draggingBlock === timeBlock.id ? 'z-20' : 'transition-all duration-75 ease-linear'}`}
 	style:background={timeBlock.color}
 	id={timeBlock.id}
 	style:top={(pageState.draggingBlock === timeBlock.id ? blockPos.top : top) + 'px'}
@@ -179,7 +181,7 @@
 </button>
 
 <div
-	class="absolute z-0 rounded-sm border border-dashed border-slate-400 transition-all duration-75"
+	class="absolute z-0 rounded-sm border border-dashed border-slate-400 transition-all duration-75 ease-linear"
 	style:top={top + placeholderPadding + 'px'}
 	style:left={left + placeholderPadding + 'px'}
 	style:width={width - 2 * placeholderPadding + 'px'}
