@@ -16,7 +16,6 @@
 		if (storedDay) {
 			initDay = JSON.parse(storedDay);
 			initDay.date = new Date(initDay.date);
-			console.log('loaded day', initDay);
 		}
 	}
 	const blocktDay = BlocktDay.fromDayBlock(initDay);
@@ -24,7 +23,6 @@
 	$effect(() => {
 		const day = blocktDay.day;
 		if (browser) {
-			console.log('saving day', day);
 			localStorage.setItem('blocktDay', JSON.stringify(day));
 		}
 	});
