@@ -9,6 +9,7 @@
 		type TimeBlock
 	} from './types.svelte';
 	import { backInOut, quartInOut } from 'svelte/easing';
+	import { isMobileOrTablet } from '$lib/checks';
 
 	type Props = {
 		top: number;
@@ -32,8 +33,20 @@
 		e.stopImmediatePropagation();
 		extendSide = target.dataset.side as 'top' | 'bottom';
 		// lock scrolling
-
+		disableScroll();
 		addEdgeListeners();
+	};
+	const disableScroll = () => {
+		if (isMobileOrTablet()) {
+			document.body.style.overflow = 'hidden';
+			document.body.style.overscrollBehavior = 'none';
+		}
+	};
+	const enableScroll = () => {
+		if (isMobileOrTablet()) {
+			document.body.style.overflow = 'auto';
+			document.body.style.overscrollBehavior = 'auto';
+		}
 	};
 	const addEdgeListeners = () => {
 		pageState.draggingEdge = true;
@@ -41,8 +54,6 @@
 		document.addEventListener('touchmove', onEdgeMove, { passive: false });
 		document.addEventListener('mouseup', onEdgeStop);
 		document.addEventListener('touchend', onEdgeStop);
-		document.body.style.overscrollBehavior = 'none';
-		document.body.style.overflow = 'hidden';
 	};
 	const removeEdgeListeners = () => {
 		pageState.draggingEdge = false;
@@ -88,6 +99,7 @@
 		}
 	};
 	const onEdgeStop = (e: MouseEvent | TouchEvent) => {
+		enableScroll();
 		removeEdgeListeners();
 	};
 	const getEventCoords = (e: MouseEvent | TouchEvent) => {
@@ -118,6 +130,7 @@
 		moveStartTime = timeBlock.start;
 		blocktDay.snapshotBlocks();
 		pageState.draggingBlock = timeBlock.id;
+		disableScroll();
 		addMoveListeners();
 	};
 	const onMove = (e: MouseEvent | TouchEvent) => {
@@ -134,6 +147,7 @@
 	};
 	const onMoveStop = (e: MouseEvent | TouchEvent) => {
 		pageState.draggingBlock = '';
+		enableScroll();
 		removeMoveListeners();
 	};
 	const addMoveListeners = () => {
