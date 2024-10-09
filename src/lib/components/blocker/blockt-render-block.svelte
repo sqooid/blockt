@@ -73,7 +73,6 @@
 			}
 			break;
 		}
-		console.log(cellPosition);
 
 		const blockSize = blocktDay.day.blockSizeHours;
 		let newHour = blocktDay.day.startHour + cellPosition * blockSize;
