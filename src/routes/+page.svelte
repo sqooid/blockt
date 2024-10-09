@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Blocker from '$lib/components/blocker/blocker.svelte';
-	import ColorPicker from '$lib/components/blocker/color-picker.svelte';
 	import { BlocktDay, type DayBlock } from '$lib/components/blocker/types.svelte';
 	import moment from 'moment';
 

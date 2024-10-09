@@ -37,12 +37,13 @@ export class BlocktDay {
 	#blocksSnapshot: TimeBlock[] = [];
 
 	static fromDayBlock(dayBlock: DayBlock) {
-		const blocktDay = new BlocktDay();
-		blocktDay.#day = dayBlock;
+		const blocktDay = new BlocktDay(dayBlock);
 		return blocktDay;
 	}
 
-	constructor() {}
+	constructor(dayBlock = defaultDayBlock) {
+		this.#day = dayBlock;
+	}
 
 	test() {
 		this.#day = defaultDayBlock;
