@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { cloneDeep } from 'lodash-es';
 
 export type DayBlock = {
 	date: Date;
@@ -33,10 +34,15 @@ const defaultDayBlock: DayBlock = {
 
 export class BlocktDay {
 	#day = $state<DayBlock>(defaultDayBlock);
+	#blocksSnapshot: TimeBlock[] = [];
 
-	constructor(dayBlock: DayBlock) {
-		this.#day = dayBlock;
+	static fromDayBlock(dayBlock: DayBlock) {
+		const blocktDay = new BlocktDay();
+		blocktDay.#day = dayBlock;
+		return blocktDay;
 	}
+
+	constructor() {}
 
 	test() {
 		this.#day = defaultDayBlock;
@@ -50,21 +56,25 @@ export class BlocktDay {
 		return this.#day.blocks;
 	}
 
-	addBlock(block: TimeBlock) {
-		const day = this.#day;
-		if (block.start < day.startHour || block.end > day.endHour) return false;
-		if (block.start >= block.end) return false;
+	getInsertIndex(block: TimeBlock) {
 		let insertIndex = -1;
 		for (let i = 0; i < this.blocks.length; i++) {
 			if (this.blocks[i].end <= block.start) {
 				insertIndex = i;
 			}
 		}
-		console.log(insertIndex);
+		return insertIndex + 1;
+	}
 
-		const nextBlock = this.blocks[insertIndex + 1];
-		if (nextBlock && block.end > nextBlock.start) return false;
-		this.blocks.splice(insertIndex + 1, 0, block);
+	addBlock(block: TimeBlock) {
+		const day = this.#day;
+		if (block.start < day.startHour || block.end > day.endHour) return false;
+		if (block.start >= block.end) return false;
+		const insertIndex = this.getInsertIndex(block);
+
+		if (this.blocks.some((b) => BlocktDay.blockOverlap(b, block))) return false;
+
+		this.blocks.splice(insertIndex, 0, block);
 		return true;
 	}
 
@@ -94,6 +104,116 @@ export class BlocktDay {
 		const newStartHour = Math.max(newStart, limit);
 		block.start = newStartHour;
 		return true;
+	}
+
+	snapshotBlocks() {
+		// This gets deepcloned by move
+		this.#blocksSnapshot = [...$state.snapshot(this.blocks)];
+	}
+
+	static blockOverlap(block1: TimeBlock, block2: TimeBlock) {
+		return (
+			(block1.start < block2.end && block1.end > block2.start) ||
+			(block2.start < block1.end && block2.end > block1.start)
+		);
+	}
+
+	static compressBlocks(blocks: TimeBlock[], side: 'top' | 'bottom') {
+		let cost = 0;
+		if (side === 'top') {
+			for (let i = 0; i < blocks.length - 1; i++) {
+				const b1 = blocks[i];
+				const b2 = blocks[i + 1];
+				const shift = b2.start - b1.end;
+				b2.start -= shift;
+				b2.end -= shift;
+				cost += shift;
+			}
+		} else {
+			for (let i = blocks.length - 1; i > 0; i--) {
+				const b1 = blocks[i];
+				const b2 = blocks[i - 1];
+				const shift = b1.start - b2.end;
+				b2.start += shift;
+				b2.end += shift;
+				cost += shift;
+			}
+		}
+		return cost;
+	}
+
+	static blocksSpan(blocks: TimeBlock[]) {
+		if (blocks.length === 0) return 0;
+		return blocks[blocks.length - 1].end - blocks[0].start;
+	}
+
+	moveBlock(blockId: string, newStart: number) {
+		// must run snapshotBlocks before this at least once
+		const blocks = cloneDeep(this.#blocksSnapshot);
+		const blockIdx = blocks.findIndex((b) => b.id == blockId);
+		// proposed position
+		const block = blocks.splice(blockIdx, 1)[0];
+		const newBlock = { ...block, start: newStart, end: block.end + newStart - block.start };
+
+		// get overlaps
+		const overlaps = blocks.filter((b) => BlocktDay.blockOverlap(b, newBlock));
+		// iterate over combinations of possible movements to find cheapest
+		let bestCost = Infinity;
+		let bestDepth = Infinity;
+		let bestBlocks = blocks;
+		for (let i = 0; i < overlaps.length + 1; i++) {
+			let cost = 0;
+			let depth = 0;
+			const up = overlaps.slice(0, i);
+			const proposedBlocks = cloneDeep(blocks);
+			if (up.length > 0) {
+				const refBlock = up[up.length - 1];
+				const shift = newBlock.start - refBlock.end; // negative shift expected
+				const upIndex = proposedBlocks.findIndex((b) => b.id == refBlock.id);
+				const res = this.shiftBlock(proposedBlocks, upIndex, shift);
+				cost += res.cost;
+				depth += res.depth;
+			}
+			const down = overlaps.slice(i);
+			if (down.length > 0) {
+				const refBlock = down[0];
+				const shift = newBlock.end - refBlock.start; // negative shift expected
+				const downIndex = proposedBlocks.findIndex((b) => b.id == refBlock.id);
+				const res = this.shiftBlock(proposedBlocks, downIndex, shift);
+				cost += res.cost;
+				depth += res.depth;
+			}
+			if (cost < bestCost) {
+				bestCost = cost;
+				bestDepth = depth;
+				bestBlocks = proposedBlocks;
+			} else if (cost === bestCost && depth < bestDepth) {
+				bestDepth = depth;
+				bestBlocks = proposedBlocks;
+			}
+		}
+		this.#day.blocks = bestBlocks;
+		this.addBlock(newBlock);
+	}
+
+	shiftBlock(
+		blocks: TimeBlock[],
+		blockIdx: number,
+		shift: number,
+		depth = 0
+	): { cost: number; depth: number } {
+		if (shift === 0) return { cost: 0, depth };
+		const block = blocks[blockIdx];
+		block.start += shift;
+		block.end += shift;
+		if (block.start < this.#day.startHour || block.end > this.#day.endHour)
+			return { cost: NaN, depth };
+		const nextIdx = shift > 0 ? blockIdx + 1 : blockIdx - 1;
+		const nextBlock = blocks[nextIdx];
+		if (!nextBlock) return { cost: Math.abs(shift), depth: depth + 1 };
+		const nextShift = shift < 0 ? block.start - nextBlock.end : block.end - nextBlock.start;
+		const nextResult = this.shiftBlock(blocks, nextIdx, nextShift, depth + 1);
+		return { cost: Math.abs(shift) + nextResult.cost, depth: nextResult.depth };
 	}
 }
 

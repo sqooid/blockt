@@ -11,7 +11,7 @@
 		endHour: 22,
 		blockSizeHours: 0.5
 	};
-	const blocktDay = new BlocktDay(emptyDayBlock);
+	const blocktDay = BlocktDay.fromDayBlock(emptyDayBlock);
 </script>
 
 <div class="w-full p-8">

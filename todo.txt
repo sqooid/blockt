@@ -1,0 +1,7 @@
+- disable scroll disable on desktop
+- hash block task to colour
+- save day to local storage
+- block edit
+- block delete
+- clear day
+- day settings (start/end hour, block size)
