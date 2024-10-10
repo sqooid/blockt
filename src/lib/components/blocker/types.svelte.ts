@@ -284,6 +284,7 @@ export const getGridCellInfo = (wrapper: HTMLElement | null) => {
 class PageState {
 	draggingEdge = $state(false);
 	draggingBlock = $state('');
+	showConfig = $state(false);
 }
 export const pageState = new PageState();
 

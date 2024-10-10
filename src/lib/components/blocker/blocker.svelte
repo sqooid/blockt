@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { range } from 'lodash-es';
 	import BlocktCell from './blockt-cell.svelte';
 	import BlocktRenderBlock from './blockt-render-block.svelte';
 	import { getGridCellInfo, hourToReadable, type BlocktDay } from './types.svelte';
@@ -9,11 +10,7 @@
 	let { blocktDay }: Props = $props();
 
 	let day = $derived(blocktDay.day);
-	let blockHours = $derived([
-		...Array((day.endHour - day.startHour) / day.blockSizeHours)
-			.keys()
-			.map((i) => day.startHour + i * day.blockSizeHours)
-	]);
+	let blockHours = $derived(range(day.startHour, day.endHour, day.blockSizeHours));
 
 	let gridWrapper: HTMLElement | null = $state(null);
 

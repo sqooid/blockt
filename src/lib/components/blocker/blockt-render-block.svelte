@@ -69,7 +69,7 @@
 		// expect grid info to be updated
 		let y = 0;
 		if (e instanceof TouchEvent) {
-			e.preventDefault();
+			// e.preventDefault();
 			y = e.touches[0].pageY;
 		} else {
 			y = e.pageY;
@@ -137,10 +137,12 @@
 	};
 	const onMove = (e: MouseEvent | TouchEvent) => {
 		const { x, y } = getEventCoords(e);
-		movedDuringClick = true;
 		transform.x = x - moveStartCoord.x;
 		const dy = y - moveStartCoord.y;
 		transform.y = dy;
+		if (transform.x > 3 || (transform.y > 5 && !movedDuringClick)) {
+			movedDuringClick = true;
+		}
 		const blockShift = Math.round(dy / gridInfo!.cellHeight);
 		const timeShift = blockShift * blocktDay.day.blockSizeHours;
 		const newStart = moveStartTime + timeShift;
