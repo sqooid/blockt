@@ -9,10 +9,18 @@
 	import { Cog } from 'lucide-svelte';
 	import { page } from '$app/stores';
 	import { pageState } from '$lib/components/blocker/types.svelte';
+	import { browser, dev } from '$app/environment';
 
 	let { children } = $props();
 
 	const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
+
+	if (browser && !dev) {
+		console.log = () => {};
+		console.warn = () => {};
+		console.info = () => {};
+		console.debug = () => {};
+	}
 </script>
 
 <svelte:head>
