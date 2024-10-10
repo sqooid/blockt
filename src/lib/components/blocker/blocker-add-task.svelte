@@ -5,8 +5,15 @@
 	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
 	import { Label } from '../ui/label';
-	import { blockColours, randomChoice, type BlocktDay, type TimeBlock } from './types.svelte';
+	import {
+		blockColours,
+		randomChoice,
+		recentBlocks,
+		type BlocktDay,
+		type TimeBlock
+	} from './types.svelte';
 	import ColorPicker from './color-picker.svelte';
+	import { Badge } from '../ui/badge';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -33,16 +40,26 @@
 				color: color
 			};
 			const res = blocktDay.addBlock(newBlock);
-			if (!res) toast.error('Task overlaps with existing task');
+			if (!res) {
+				toast.error('Task overlaps with existing task');
+				return;
+			}
 		} else {
 			timeBlock.task = task;
 			timeBlock.color = color;
 		}
+		recentBlocks.addBlock(task, color);
 		open = false;
 	};
 
 	const onCancel = () => {
 		open = false;
+	};
+
+	const onClickRecent = (recent: { task: string; color: string }) => {
+		task = recent.task;
+		color = recent.color;
+		onSave();
 	};
 </script>
 
@@ -57,6 +74,15 @@
 				<Input type="text" placeholder="e.g. Walk" bind:value={task} class="mt-1" />
 			</Label>
 			<ColorPicker bind:value={color} />
+			<div class="flex flex-wrap gap-2">
+				{#each recentBlocks.blocks as recent (recent.task)}
+					<Badge
+						color={recent.color}
+						class={`cursor-pointer text-foreground`}
+						onclick={() => onClickRecent(recent)}>{recent.task}</Badge
+					>
+				{/each}
+			</div>
 			<div class="flex gap-2">
 				<Button variant="outline" class="w-fit" onclick={onCancel}>Cancel</Button>
 				<Button class="w-fit" onclick={onSave}>{timeBlock ? 'Save' : 'Add'}</Button>

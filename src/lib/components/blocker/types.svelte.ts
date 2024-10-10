@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { cloneDeep } from 'lodash-es';
+import { browser } from '$app/environment';
 
 export type DayBlock = {
 	date: Date;
@@ -289,3 +290,32 @@ export const pageState = new PageState();
 export const blockColours = ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'];
 
 export const randomChoice = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+class RecentBlocks {
+	#blocks: { task: string; color: string }[] = $state([]);
+	#limit: number;
+
+	constructor(limit?: number) {
+		this.#limit = limit ?? 5;
+		if (browser) {
+			const recentBlocks = localStorage.getItem('recentBlocks');
+			if (recentBlocks) {
+				this.#blocks = JSON.parse(recentBlocks);
+			}
+		}
+	}
+
+	get blocks() {
+		return this.#blocks;
+	}
+
+	addBlock(task: string, color: string) {
+		const block = { task, color };
+		this.#blocks = [block, ...this.#blocks.filter((b) => b.task !== task)].slice(0, 5);
+		if (browser) {
+			localStorage.setItem('recentBlocks', JSON.stringify(this.#blocks));
+		}
+	}
+}
+
+export const recentBlocks = new RecentBlocks();
