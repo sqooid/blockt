@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { isMobileOrTablet } from '$lib/checks';
+	import { quartInOut } from 'svelte/easing';
 	import { scale } from 'svelte/transition';
+	import BlockerAddTask from './blocker-add-task.svelte';
 	import {
 		BlocktDay,
 		getGridCellInfo,
 		pageState,
-		printBlocksTestFormat,
 		type GridInfo,
 		type TimeBlock
 	} from './types.svelte';
-	import { backInOut, quartInOut } from 'svelte/easing';
-	import { isMobileOrTablet } from '$lib/checks';
 
 	type Props = {
 		top: number;
@@ -116,6 +116,7 @@
 	};
 	let moveStartCoord = $state({ x: 0, y: 0 });
 	let moveStartPos = { top: 0, left: 0 };
+	let movedDuringClick = false;
 	let transform = $state({ x: 0, y: 0 });
 	let moveStartTime = 0;
 	const blockPos = $derived({
@@ -127,6 +128,7 @@
 		moveStartPos = { top, left };
 		transform = { x: 0, y: 0 };
 		moveStartCoord = getEventCoords(e);
+		movedDuringClick = false;
 		moveStartTime = timeBlock.start;
 		blocktDay.snapshotBlocks();
 		pageState.draggingBlock = timeBlock.id;
@@ -135,6 +137,7 @@
 	};
 	const onMove = (e: MouseEvent | TouchEvent) => {
 		const { x, y } = getEventCoords(e);
+		movedDuringClick = true;
 		transform.x = x - moveStartCoord.x;
 		const dy = y - moveStartCoord.y;
 		transform.y = dy;
@@ -147,6 +150,9 @@
 	};
 	const onMoveStop = (e: MouseEvent | TouchEvent) => {
 		pageState.draggingBlock = '';
+		if (!movedDuringClick) {
+			onClick();
+		}
 		enableScroll();
 		removeMoveListeners();
 	};
@@ -161,6 +167,12 @@
 		document.removeEventListener('touchmove', onMove);
 		document.removeEventListener('mouseup', onMoveStop);
 		document.removeEventListener('touchend', onMoveStop);
+	};
+
+	let showEdit = $state(false);
+	const onClick = () => {
+		console.log('clicked');
+		showEdit = true;
 	};
 </script>
 
@@ -193,10 +205,16 @@
 	{@render handle('bottom')}
 </button>
 
-<div
-	class="absolute z-0 rounded-sm border border-dashed border-slate-400 transition-all duration-75 ease-linear"
-	style:top={top + placeholderPadding + 'px'}
-	style:left={left + placeholderPadding + 'px'}
-	style:width={width - 2 * placeholderPadding + 'px'}
-	style:height={height - 2 * placeholderPadding + 'px'}
-></div>
+<BlockerAddTask {blocktDay} {timeBlock} bind:open={showEdit}>
+	{#snippet trigger(builder: any)}
+		<div
+			use:builder.action
+			{...builder}
+			class="absolute z-0 rounded-sm border border-dashed border-slate-400 transition-all duration-75 ease-linear"
+			style:top={top + placeholderPadding + 'px'}
+			style:left={left + placeholderPadding + 'px'}
+			style:width={width - 2 * placeholderPadding + 'px'}
+			style:height={height - 2 * placeholderPadding + 'px'}
+		></div>
+	{/snippet}
+</BlockerAddTask>

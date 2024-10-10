@@ -10,29 +10,36 @@
 
 	type Props = {
 		blocktDay: BlocktDay;
-		hour: number;
+		hour?: number;
 		trigger: any;
+		timeBlock?: TimeBlock;
+		open?: boolean;
 	};
-	let { blocktDay, hour, trigger }: Props = $props();
+	let { blocktDay, hour, trigger, timeBlock, open = $bindable() }: Props = $props();
 
-	let task = $state('');
-	let color = $state(randomChoice(blockColours));
+	let task = $state(timeBlock?.task ?? '');
+	let color = $state(timeBlock?.color ?? randomChoice(blockColours));
 	const onSave = () => {
-		if (task) {
+		if (!task) {
+			toast.error('Task cannot be empty');
+			return;
+		}
+		if (!timeBlock) {
 			const newBlock: TimeBlock = {
 				id: v4(),
-				start: hour,
-				end: hour + blocktDay.day.blockSizeHours,
+				start: hour ?? 0,
+				end: (hour ?? 0) + blocktDay.day.blockSizeHours,
 				task: task,
 				color: color
 			};
 			const res = blocktDay.addBlock(newBlock);
 			if (!res) toast.error('Task overlaps with existing task');
+		} else {
+			timeBlock.task = task;
+			timeBlock.color = color;
 		}
 		open = false;
 	};
-
-	let open = $state(false);
 
 	const onCancel = () => {
 		open = false;
@@ -43,8 +50,8 @@
 	<Popover.Trigger asChild let:builder>
 		{@render trigger(builder, open)}
 	</Popover.Trigger>
-	<Popover.Content side="top" sideOffset={2}>
-		<div class="flex flex-col gap-2">
+	<Popover.Content side="top" sideOffset={4}>
+		<div class="flex flex-col gap-4">
 			<Label>
 				<span>Task</span>
 				<Input type="text" placeholder="e.g. Walk" bind:value={task} class="mt-1" />
@@ -52,7 +59,7 @@
 			<ColorPicker bind:value={color} />
 			<div class="flex gap-2">
 				<Button variant="outline" class="w-fit" onclick={onCancel}>Cancel</Button>
-				<Button class="w-fit" onclick={onSave}>Add</Button>
+				<Button class="w-fit" onclick={onSave}>{timeBlock ? 'Save' : 'Add'}</Button>
 			</div>
 		</div>
 	</Popover.Content>

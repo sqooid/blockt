@@ -10,7 +10,7 @@
 <div class="flex gap-2">
 	{#each blockColours as c}
 		<button
-			class={`h-5 w-5 rounded-sm ${value === c ? 'outline outline-2 outline-offset-1 outline-slate-500' : ''}`}
+			class={`h-5 w-5 rounded-sm ${value === c ? 'outline outline-2 outline-offset-1 outline-black' : ''}`}
 			style:background={c}
 			aria-label="color"
 			onclick={() => (value = c)}
