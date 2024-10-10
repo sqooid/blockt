@@ -226,6 +226,13 @@ export class BlocktDay {
 		const nextResult = this.shiftBlock(blocks, nextIdx, nextShift, depth + 1);
 		return { cost: Math.abs(shift) + nextResult.cost, depth: nextResult.depth };
 	}
+
+	deleteBlock(blockId: string) {
+		const blockIdx = this.blocks.findIndex((b) => b.id == blockId);
+		if (blockIdx < 0) return false;
+		this.#day.blocks.splice(blockIdx, 1);
+		return true;
+	}
 }
 
 export const printBlocksTestFormat = (blocks: TimeBlock[]) => {

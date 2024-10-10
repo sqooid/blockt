@@ -1,7 +1,8 @@
-- disable scroll disable on desktop
-- hash block task to colour
-- save day to local storage
-- block edit
 - block delete
-- clear day
-- day settings (start/end hour, block size)
+- day settings (block size)
+- offset time labels to indicate hour boundaries
+- show current time as overlayed line
+- only allow drag move on certain part of block (drag handle)
+- make color changes for block consistent (change all blocks with same text and change block in recent instead of create new)
+- add more color variants
+- enter clicks button

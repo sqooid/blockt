@@ -14,6 +14,7 @@
 	} from './types.svelte';
 	import ColorPicker from './color-picker.svelte';
 	import { Badge } from '../ui/badge';
+	import { Trash } from 'lucide-svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -61,6 +62,10 @@
 		color = recent.color;
 		onSave();
 	};
+
+	const onDelete = () => {
+		blocktDay.deleteBlock(timeBlock!.id);
+	};
 </script>
 
 <Popover.Root bind:open>
@@ -84,6 +89,11 @@
 				{/each}
 			</div>
 			<div class="flex gap-2">
+				{#if timeBlock}
+					<Button variant="destructive" class="w-fit" onclick={onDelete}>
+						<Trash class="h-4 w-4" />
+					</Button>
+				{/if}
 				<Button variant="outline" class="w-fit" onclick={onCancel}>Cancel</Button>
 				<Button class="w-fit" onclick={onSave}>{timeBlock ? 'Save' : 'Add'}</Button>
 			</div>
