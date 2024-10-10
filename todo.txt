@@ -1,6 +1,4 @@
-- block delete
 - day settings (block size)
-- offset time labels to indicate hour boundaries
 - show current time as overlayed line
 - only allow drag move on certain part of block (drag handle)
 - make color changes for block consistent (change all blocks with same text and change block in recent instead of create new)

@@ -10,7 +10,9 @@
 	let { blocktDay }: Props = $props();
 
 	let day = $derived(blocktDay.day);
-	let blockHours = $derived(range(day.startHour, day.endHour, day.blockSizeHours));
+	let blockHours = $derived(
+		range(day.startHour, day.endHour + day.blockSizeHours, day.blockSizeHours)
+	);
 
 	let gridWrapper: HTMLElement | null = $state(null);
 
@@ -49,11 +51,15 @@
 	>
 		{#each blockHours as hour, i}
 			<div class="justify-self-end py-1">
-				<span class="muted">
+				<span class="muted block -translate-y-1/2">
 					{hourToReadable(hour)}
 				</span>
 			</div>
-			<BlocktCell {hour} index={i} {blocktDay} />
+			{#if i === blockHours.length - 1}
+				<div></div>
+			{:else}
+				<BlocktCell {hour} index={i} {blocktDay} />
+			{/if}
 		{/each}
 	</div>
 </div>
