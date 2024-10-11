@@ -1,5 +1,4 @@
 - day settings (block size)
 - only allow drag move on certain part of block (drag handle)
-- make color changes for block consistent (change all blocks with same text and change block in recent instead of create new)
 - add more color variants
 - enter clicks button
