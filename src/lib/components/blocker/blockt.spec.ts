@@ -480,3 +480,30 @@ test('blockt weird small displacement 2', () => {
 		{ id: '2', start: 12, end: 12.5, color: '', task: '' }
 	]);
 });
+
+test('blockt disappearing block', () => {
+	const dayBlock: DayBlock = {
+		startHour: 9,
+		endHour: 22,
+		blockSizeHours: 0.5,
+		blocks: [],
+		date: new Date()
+	};
+	const day = BlocktDay.fromDayBlock(dayBlock);
+	day.day.blocks = [
+		{ id: '0', start: 10.5, end: 11.5, color: '', task: '' },
+		{ id: '1', start: 11.5, end: 14, color: '', task: '' },
+		{ id: '2', start: 14, end: 16, color: '', task: '' },
+		{ id: '3', start: 16, end: 22, color: '', task: '' }
+	];
+
+	day.snapshotBlocks();
+
+	day.moveBlock('0', 11);
+	expect(day.blocks).toMatchObject([
+		{ id: '0', start: 10.5, end: 11.5, color: '', task: '' },
+		{ id: '1', start: 11.5, end: 14, color: '', task: '' },
+		{ id: '2', start: 14, end: 16, color: '', task: '' },
+		{ id: '3', start: 16, end: 22, color: '', task: '' }
+	]);
+});

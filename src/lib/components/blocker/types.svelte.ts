@@ -198,6 +198,7 @@ export class BlocktDay {
 				bestBlocks = proposedBlocks;
 			}
 		}
+		if (bestCost === Infinity) return false;
 		this.#day.blocks = bestBlocks;
 		this.addBlock(newBlock);
 	}
