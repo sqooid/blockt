@@ -48,10 +48,11 @@
 		if (cellOffset < 0 || cellOffset >= gridInfo.cells.length) return null;
 		return gridInfo.cellHeight * cellOffset;
 	});
+	const gridLeft = $derived(getGridCellInfo(gridWrapper)?.leftOffset ?? null);
 </script>
 
 <div class="relative mx-auto max-w-prose">
-	<BlocktCurrentTimeBar top={currentTop} hour={currentTime.hour} />
+	<BlocktCurrentTimeBar top={currentTop} hour={currentTime.hour} left={gridLeft} />
 	{#if gridWrapper}
 		{#each renderBlocks as block (block.timeBlock.id)}
 			<BlocktRenderBlock {...block} {gridWrapper} {blocktDay} />

@@ -19,9 +19,9 @@ export type TimeBlock = {
 };
 
 export const hourToReadable = (hour: number, wrap = true): string => {
-	const minutes = (hour % 1) * 60;
+	const minutes = Math.floor((hour % 1) * 60 + 0.001); // floating point error
 	const hourFloor = Math.floor(hour);
-	const m = moment(`${hourFloor}:${minutes}`, 'HH:mm');
+	const m = moment(`${hourFloor}:${minutes}`, 'H:m');
 	return wrap ? m.format('h:mm a') : m.format('HH:mm');
 };
 
