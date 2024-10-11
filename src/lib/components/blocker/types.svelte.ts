@@ -21,8 +21,8 @@ export type TimeBlock = {
 export const hourToReadable = (hour: number, wrap = true): string => {
 	const minutes = (hour % 1) * 60;
 	const hourFloor = Math.floor(hour);
-	const hours = wrap ? (hourFloor == 12 ? 12 : hourFloor % 12) : hourFloor;
-	return `${hours}:${minutes || '00'}`;
+	const m = moment(`${hourFloor}:${minutes}`, 'HH:mm');
+	return wrap ? m.format('h:mm a') : m.format('HH:mm');
 };
 
 const defaultDayBlock: DayBlock = {
@@ -327,3 +327,29 @@ class RecentBlocks {
 }
 
 export const recentBlocks = new RecentBlocks();
+
+class CurrentTime {
+	#time = $state(new Date());
+	#hour = $derived(this.#time.getHours() + this.#time.getMinutes() / 60);
+	#interval: NodeJS.Timeout;
+
+	constructor() {
+		this.#interval = setInterval(() => {
+			this.#time = new Date();
+		}, 1000);
+	}
+
+	get time() {
+		return this.#time;
+	}
+
+	get hour() {
+		return this.#hour;
+	}
+
+	destroy() {
+		clearInterval(this.#interval);
+	}
+}
+
+export const currentTime = new CurrentTime();

@@ -2,7 +2,8 @@
 	import { range } from 'lodash-es';
 	import BlocktCell from './blockt-cell.svelte';
 	import BlocktRenderBlock from './blockt-render-block.svelte';
-	import { getGridCellInfo, hourToReadable, type BlocktDay } from './types.svelte';
+	import { currentTime, getGridCellInfo, hourToReadable, type BlocktDay } from './types.svelte';
+	import BlocktCurrentTimeBar from './blockt-current-time-bar.svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
@@ -37,9 +38,20 @@
 			};
 		});
 	});
+
+	const currentTop = $derived.by(() => {
+		const hour = currentTime.hour;
+		const gridInfo = getGridCellInfo(gridWrapper);
+		if (!gridInfo) return null;
+		const day = blocktDay.day;
+		const cellOffset = (hour - day.startHour) / day.blockSizeHours;
+		if (cellOffset < 0 || cellOffset >= gridInfo.cells.length) return null;
+		return gridInfo.cellHeight * cellOffset;
+	});
 </script>
 
 <div class="relative mx-auto max-w-prose">
+	<BlocktCurrentTimeBar top={currentTop} hour={currentTime.hour} />
 	{#if gridWrapper}
 		{#each renderBlocks as block (block.timeBlock.id)}
 			<BlocktRenderBlock {...block} {gridWrapper} {blocktDay} />
