@@ -64,7 +64,7 @@
 	>
 		{#each blockHours as hour, i}
 			<div class="justify-self-end py-1">
-				<span class="muted block -translate-y-1/2">
+				<span class="muted block -translate-y-1/2 text-nowrap">
 					{hourToReadable(hour)}
 				</span>
 			</div>
