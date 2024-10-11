@@ -48,12 +48,14 @@
 		} else {
 			timeBlock.task = task;
 			timeBlock.color = color;
+			blocktDay.blocksMatchColor(task, color);
 		}
 		recentBlocks.addBlock(task, color);
 		open = false;
 	};
 
 	const onCancel = () => {
+		if (!timeBlock) task = '';
 		open = false;
 	};
 

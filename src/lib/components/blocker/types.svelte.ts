@@ -233,6 +233,11 @@ export class BlocktDay {
 		this.#day.blocks.splice(blockIdx, 1);
 		return true;
 	}
+
+	blocksMatchColor(task: string, color: string) {
+		const blocks = this.blocks.filter((b) => b.task === task);
+		blocks.forEach((b) => (b.color = color));
+	}
 }
 
 export const printBlocksTestFormat = (blocks: TimeBlock[]) => {
@@ -319,7 +324,12 @@ class RecentBlocks {
 
 	addBlock(task: string, color: string) {
 		const block = { task, color };
-		this.#blocks = [block, ...this.#blocks.filter((b) => b.task !== task)].slice(0, 5);
+		const existing = this.#blocks.find((b) => b.task === task);
+		if (existing) {
+			existing.color = color;
+		} else {
+			this.#blocks = [block, ...this.#blocks.filter((b) => b.task !== task)].slice(0, 8);
+		}
 		if (browser) {
 			localStorage.setItem('recentBlocks', JSON.stringify(this.#blocks));
 		}
