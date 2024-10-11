@@ -1,4 +1,3 @@
 - day settings (block size)
-- only allow drag move on certain part of block (drag handle)
 - add more color variants
 - enter clicks button

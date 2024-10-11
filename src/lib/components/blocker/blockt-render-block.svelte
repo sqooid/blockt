@@ -10,6 +10,10 @@
 		type GridInfo,
 		type TimeBlock
 	} from './types.svelte';
+	import { getContext } from 'svelte';
+	import type { AppConfig } from '../config.svelte';
+	import { GripVertical } from 'lucide-svelte';
+	import Page from '../../../routes/+page.svelte';
 
 	type Props = {
 		top: number;
@@ -23,6 +27,8 @@
 	let { top, left, width, height, timeBlock, gridWrapper, blocktDay }: Props = $props();
 	let blockTop = $state(top);
 	let blockLeft = $state(left);
+
+	const config = getContext('config') as AppConfig;
 
 	const placeholderPadding = 2;
 	let gridInfo: GridInfo | null = null;
@@ -105,7 +111,9 @@
 	const getEventCoords = (e: MouseEvent | TouchEvent) => {
 		let x, y;
 		if (e instanceof TouchEvent) {
-			e.preventDefault();
+			if (!config.useMoveHandles) {
+				e.preventDefault();
+			}
 			y = e.touches[0].pageY;
 			x = e.touches[0].pageX;
 		} else {
@@ -118,12 +126,20 @@
 	let moveStartPos = { top: 0, left: 0 };
 	let movedDuringClick = false;
 	let transform = $state({ x: 0, y: 0 });
+	let grabbedHandle = $state(false);
 	let moveStartTime = 0;
 	const blockPos = $derived({
 		top: moveStartPos.top + transform.y,
 		left: moveStartPos.left + transform.x
 	});
 	const onMoveStart = (e: MouseEvent | TouchEvent) => {
+		const target = e.target as HTMLElement;
+		if (target.classList.contains('handle')) {
+			grabbedHandle = true;
+		} else {
+			grabbedHandle = false;
+		}
+
 		gridInfo = getGridCellInfo(gridWrapper);
 		moveStartPos = { top, left };
 		transform = { x: 0, y: 0 };
@@ -132,17 +148,27 @@
 		moveStartTime = timeBlock.start;
 		blocktDay.snapshotBlocks();
 		pageState.draggingBlock = timeBlock.id;
-		disableScroll();
+
+		if (grabbedHandle || !config.useMoveHandles) {
+			disableScroll();
+		}
 		addMoveListeners();
 	};
 	const onMove = (e: MouseEvent | TouchEvent) => {
 		const { x, y } = getEventCoords(e);
-		transform.x = x - moveStartCoord.x;
+		const dx = x - moveStartCoord.x;
 		const dy = y - moveStartCoord.y;
-		transform.y = dy;
-		if (transform.x > 3 || (transform.y > 5 && !movedDuringClick)) {
+
+		if ((dx > 3 || dy > 5) && !movedDuringClick) {
 			movedDuringClick = true;
 		}
+		if (!grabbedHandle && config.useMoveHandles) {
+			return;
+		}
+
+		transform.y = dy;
+		transform.x = dx;
+
 		const blockShift = Math.round(dy / gridInfo!.cellHeight);
 		const timeShift = blockShift * blocktDay.day.blockSizeHours;
 		const newStart = moveStartTime + timeShift;
@@ -152,7 +178,7 @@
 	};
 	const onMoveStop = (e: MouseEvent | TouchEvent) => {
 		pageState.draggingBlock = '';
-		if (!movedDuringClick) {
+		if (!movedDuringClick && !grabbedHandle) {
 			onClick();
 		}
 		enableScroll();
@@ -173,7 +199,6 @@
 
 	let showEdit = $state(false);
 	const onClick = () => {
-		console.log('clicked');
 		showEdit = true;
 	};
 </script>
@@ -205,6 +230,17 @@
 		{timeBlock.task}
 	</span>
 	{@render handle('bottom')}
+	{#if config.useMoveHandles}
+		<div
+			class="handle absolute bottom-0 right-0 top-0 z-10 flex items-center px-2"
+			onmousedown={onMoveStart}
+			ontouchstart={onMoveStart}
+			role="button"
+			tabindex="-1"
+		>
+			<GripVertical class="pointer-events-none h-4 w-4" />
+		</div>
+	{/if}
 </button>
 
 <BlockerAddTask {blocktDay} {timeBlock} bind:open={showEdit}>

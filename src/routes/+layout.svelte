@@ -1,19 +1,23 @@
 <script>
+	import { Toaster } from '$lib/components/ui/sonner';
 	import '../app.css';
 	import '../typography.css';
-	import { Toaster } from '$lib/components/ui/sonner';
+	import { browser, dev } from '$app/environment';
+	import { page } from '$app/stores';
+	import { pageState } from '$lib/components/blocker/types.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import { Cog } from 'lucide-svelte';
+	import { setContext } from 'svelte';
 
 	//@ts-ignore
 	import { pwaInfo } from 'virtual:pwa-info';
-	import { Button } from '$lib/components/ui/button';
-	import { Cog } from 'lucide-svelte';
-	import { page } from '$app/stores';
-	import { pageState } from '$lib/components/blocker/types.svelte';
-	import { browser, dev } from '$app/environment';
-
+	import { defaultConfig, localStore } from '$lib/components/config.svelte';
 	let { children } = $props();
 
 	const webManifestLink = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '');
+
+	const config = localStore('config', defaultConfig);
+	setContext('config', config.value);
 
 	if (browser && !dev) {
 		console.log = () => {};

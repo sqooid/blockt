@@ -1,13 +1,19 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
 	import { Button } from '../ui/button';
 	import { Label } from '../ui/label';
+	import { Switch } from '../ui/switch';
 	import BlocktConfigTime from './blockt-config-time.svelte';
 	import { pageState, type BlocktDay } from './types.svelte';
+	import type { AppConfig } from '../config.svelte';
+	import { ChevronsDownUp, Trash } from 'lucide-svelte';
 
 	type Props = {
 		blocktDay: BlocktDay;
 	};
 	let { blocktDay }: Props = $props();
+
+	const config = getContext('config') as AppConfig;
 </script>
 
 <div class="flex flex-col gap-4">
@@ -30,9 +36,17 @@
 				step={blocktDay.day.blockSizeHours}
 			/>
 		</Label>
+		<Label class="flex items-center justify-between">
+			<span>Use move handles</span>
+			<Switch bind:checked={config.useMoveHandles} />
+		</Label>
 	</div>
-	<Button variant="destructive" on:click={() => (blocktDay.day.blocks = [])}>Clear blocks</Button>
-	<div>
-		<Button variant="outline" on:click={() => (pageState.showConfig = false)}>Close</Button>
-	</div>
+	<Button variant="destructive" on:click={() => (blocktDay.day.blocks = [])}>
+		<Trash class="mr-2 h-6 w-6" />
+		Clear blocks</Button
+	>
+	<Button variant="outline" on:click={() => (pageState.showConfig = false)}>
+		<ChevronsDownUp class="mr-2 h-6 w-6" />
+		Close</Button
+	>
 </div>
