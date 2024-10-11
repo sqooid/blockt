@@ -13,7 +13,6 @@
 	import { getContext } from 'svelte';
 	import type { AppConfig } from '../config.svelte';
 	import { GripVertical } from 'lucide-svelte';
-	import Page from '../../../routes/+page.svelte';
 
 	type Props = {
 		top: number;
