@@ -64,6 +64,15 @@
 		<img src="/tutorial/image-6.png" alt="tutorial 6" />
 		<p>Change settings and clear blocks for a new day by clicking the cog icon</p>
 	</div>
+	<div class="mx-auto mt-8 max-w-prose">
+		<h2>Contact</h2>
+		<p>
+			If you find any bugs or have feature requests, feel free to make an issue at <a
+				target="_blank"
+				href="https://github.com/sqooid/blockt/issues">https://github.com/sqooid/blockt/issues</a
+			>.
+		</p>
+	</div>
 </div>
 
 <style lang="postcss">

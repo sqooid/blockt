@@ -50,6 +50,10 @@
 	@apply text-sm text-muted-foreground;
 }
 
+.link {
+	@apply underline underline-offset-2 hover:opacity-80;
+}
+
 .floating {
 	width: max-content;
 	position: absolute;
@@ -83,5 +87,8 @@ button {
 	}
 	& ol {
 		@apply ol;
+	}
+	& a {
+		@apply link;
 	}
 }

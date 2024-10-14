@@ -41,7 +41,7 @@
 </svelte:head>
 
 <Toaster />
-<div class="font-poppins flex w-full flex-col items-center">
+<div class="flex w-full flex-col items-center font-poppins">
 	<div class="grid w-full grid-cols-3 border-b border-muted">
 		<div class="ml-8 self-center justify-self-start">
 			{#if $page.url.pathname === '/'}
@@ -54,7 +54,7 @@
 				</Button>
 			{/if}
 		</div>
-		<h1 class="h1 mx-auto py-4">Blockt</h1>
+		<a class="h1 mx-auto py-4" href="/">Blockt</a>
 		<div
 			class={`mr-8 self-center justify-self-end ${$page.url.pathname === '/' ? '' : 'invisible'}`}
 		>
