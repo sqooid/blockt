@@ -1,3 +1,2 @@
 - day settings (block size)
-- add more color variants
 - enter clicks button

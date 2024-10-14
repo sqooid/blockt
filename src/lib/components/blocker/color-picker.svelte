@@ -7,7 +7,7 @@
 	let { value = $bindable() }: Props = $props();
 </script>
 
-<div class="flex gap-2">
+<div class="flex justify-between">
 	{#each blockColours as c}
 		<button
 			class={`h-5 w-5 rounded-sm ${value === c ? 'outline outline-2 outline-offset-1 outline-black' : ''}`}

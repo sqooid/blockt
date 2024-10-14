@@ -301,7 +301,16 @@ class PageState {
 }
 export const pageState = new PageState();
 
-export const blockColours = ['#ffb3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'];
+export const blockColours = [
+	'#fa9189',
+	'#fcae7c',
+	'#ffe699',
+	'#f9ffb5',
+	'#b3f5bc',
+	'#d6f6ff',
+	'#e2cbf7',
+	'#d1bdff'
+];
 
 export const randomChoice = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
