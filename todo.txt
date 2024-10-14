@@ -1,2 +1,0 @@
-- day settings (block size)
-- enter clicks button
