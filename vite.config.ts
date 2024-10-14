@@ -10,6 +10,10 @@ export default defineConfig({
 			devOptions: { enabled: true },
 			injectRegister: 'auto',
 			registerType: 'autoUpdate',
+			includeAssets: ['**/*'],
+			workbox: {
+				globPatterns: ['client/**/*']
+			},
 			// includeAssets: ['blockt.png', 'apple-touch-icon-180x180.png', 'maskable-icon-512x512.png'],
 			manifest: {
 				name: 'Blockt',
