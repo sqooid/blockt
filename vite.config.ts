@@ -39,6 +39,63 @@ export default defineConfig({
 						type: 'image/png',
 						purpose: 'maskable'
 					}
+				],
+				screenshots: [
+					{
+						sizes: '951x949',
+						src: '/tutorial/example.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-1.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-2.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-3.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-4.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-5.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '951x949',
+						src: '/tutorial/image-6.png',
+						form_factor: 'wide'
+					},
+					{
+						sizes: '1080x2280',
+						src: '/mobile/image-1.jpg',
+						form_factor: 'narrow'
+					},
+					{
+						sizes: '1080x2280',
+						src: '/mobile/image-2.jpg',
+						form_factor: 'narrow'
+					},
+					{
+						sizes: '1080x2280',
+						src: '/mobile/image-3.jpg',
+						form_factor: 'narrow'
+					},
+					{
+						sizes: '1080x2280',
+						src: '/mobile/image-4.jpg',
+						form_factor: 'narrow'
+					}
 				]
 			}
 		})
