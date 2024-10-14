@@ -6,7 +6,7 @@ export type AppConfig = {
 };
 
 export const defaultConfig = {
-	useMoveHandles: !isMobileOrTablet
+	useMoveHandles: isMobileOrTablet()
 };
 
 export class LocalStore<T> {
