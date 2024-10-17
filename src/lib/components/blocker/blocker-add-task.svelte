@@ -66,6 +66,7 @@
 	};
 
 	const onDelete = () => {
+		open = false;
 		blocktDay.deleteBlock(timeBlock!.id);
 	};
 </script>
@@ -92,12 +93,12 @@
 			</div>
 			<div class="flex gap-2">
 				{#if timeBlock}
-					<Button variant="destructive" class="w-fit" onclick={onDelete}>
+					<Button variant="destructive" class="w-fit" on:click={onDelete}>
 						<Trash class="h-4 w-4" />
 					</Button>
 				{/if}
-				<Button variant="outline" class="w-fit" onclick={onCancel}>Cancel</Button>
-				<Button class="w-fit" onclick={onSave}>{timeBlock ? 'Save' : 'Add'}</Button>
+				<Button variant="outline" class="w-fit" on:click={onCancel}>Cancel</Button>
+				<Button class="w-fit" on:click={onSave}>{timeBlock ? 'Save' : 'Add'}</Button>
 			</div>
 		</div>
 	</Popover.Content>

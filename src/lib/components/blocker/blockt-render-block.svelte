@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { isMobileOrTablet } from '$lib/checks';
 	import { quartInOut } from 'svelte/easing';
-	import { scale } from 'svelte/transition';
+	import { fade, scale } from 'svelte/transition';
 	import BlockerAddTask from './blocker-add-task.svelte';
 	import {
 		BlocktDay,
@@ -220,7 +220,8 @@
 	style:left={(pageState.draggingBlock === timeBlock.id ? blockPos.left : left) + 'px'}
 	style:width={width + 'px'}
 	style:height={height + 'px'}
-	transition:scale={{ duration: 200, easing: quartInOut }}
+	in:scale={{ duration: 200, easing: quartInOut }}
+	out:fade={{ duration: 50, easing: quartInOut }}
 	onmousedown={onMoveStart}
 	ontouchstart={onMoveStart}
 >
