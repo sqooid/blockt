@@ -27,6 +27,12 @@
 
 	let task = $state(timeBlock?.task ?? '');
 	let color = $state(timeBlock?.color ?? randomChoice(blockColours));
+
+	const close = () => {
+		open = false;
+		if (!timeBlock) task = '';
+	};
+
 	const onSave = () => {
 		if (!task) {
 			toast.error('Task cannot be empty');
@@ -51,12 +57,11 @@
 			blocktDay.blocksMatchColor(task, color);
 		}
 		recentBlocks.addBlock(task, color);
-		open = false;
+		close();
 	};
 
 	const onCancel = () => {
-		if (!timeBlock) task = '';
-		open = false;
+		close();
 	};
 
 	const onClickRecent = (recent: { task: string; color: string }) => {
@@ -66,7 +71,7 @@
 	};
 
 	const onDelete = () => {
-		open = false;
+		close();
 		blocktDay.deleteBlock(timeBlock!.id);
 	};
 </script>
